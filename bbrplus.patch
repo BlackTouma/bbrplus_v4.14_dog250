@@ -1,0 +1,37 @@
+diff -urN aa/include/net/inet_connection_sock.h bb/include/net/inet_connection_sock.h
+--- aa/include/net/inet_connection_sock.h       2019-12-14 17:07:48.190502969 +0800
++++ bb/include/net/inet_connection_sock.h       2019-12-14 17:08:06.373215456 +0800
+@@ -136,8 +136,8 @@
+        } icsk_mtup;
+        u32                       icsk_user_timeout;
+  
+-       u64                       icsk_ca_priv[88 / sizeof(u64)];
+-#define ICSK_CA_PRIV_SIZE      (11 * sizeof(u64))
++       u64                       icsk_ca_priv[112 / sizeof(u64)];
++#define ICSK_CA_PRIV_SIZE      (14 * sizeof(u64))
+ };
+  
+ #define ICSK_TIME_RETRANS      1       /* Retransmit timer */
+diff -urN aa/net/ipv4/Makefile bb/net/ipv4/Makefile
+--- aa/net/ipv4/Makefile        2019-12-14 17:09:40.204731772 +0800
++++ bb/net/ipv4/Makefile        2019-12-14 17:09:47.147621995 +0800
+@@ -44,7 +44,7 @@
+ obj-$(CONFIG_INET_UDP_DIAG) += udp_diag.o
+ obj-$(CONFIG_INET_RAW_DIAG) += raw_diag.o
+ obj-$(CONFIG_NET_TCPPROBE) += tcp_probe.o
+-obj-$(CONFIG_TCP_CONG_BBR) += tcp_bbr.o
++obj-$(CONFIG_TCP_CONG_BBR) += tcp_bbrplus.o
+ obj-$(CONFIG_TCP_CONG_BIC) += tcp_bic.o
+ obj-$(CONFIG_TCP_CONG_CDG) += tcp_cdg.o
+ obj-$(CONFIG_TCP_CONG_CUBIC) += tcp_cubic.o
+diff -urN aa/net/ipv4/tcp_output.c bb/net/ipv4/tcp_output.c
+--- aa/net/ipv4/tcp_output.c    2019-12-14 17:08:48.488549518 +0800
++++ bb/net/ipv4/tcp_output.c    2019-12-14 17:08:55.061445594 +0800
+@@ -1834,6 +1834,7 @@
+  
+        return !after(end_seq, tcp_wnd_end(tp));
+ }
++EXPORT_SYMBOL(tcp_snd_wnd_test);
+  
+ /* Trim TSO SKB to LEN bytes, put the remaining data into a new packet
+  * which is put after SKB on the list.  It is very much like
